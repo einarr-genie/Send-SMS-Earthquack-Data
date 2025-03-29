@@ -220,15 +220,8 @@ class EarthquakeScraperService
         $magnitude = $earthquakeData['magnitude'];
         $region = $earthquakeData['region'];
         
-        // Only send notifications for earthquakes with magnitude > 3.3 and in Myanmar region
-        // if ($magnitude <= 3.3 || !str_contains(strtolower($region), 'myanmar')) {
+        // Only send notifications for earthquakes with magnitude > 4
         if ($magnitude <= 4) {
-            Log::info('Skipping notification - criteria not met', [
-                'magnitude' => $magnitude,
-                'region' => $region,
-                'required_magnitude' => '> 3.3',
-                'required_region' => 'Myanmar'
-            ]);
             return;
         }
         
@@ -236,10 +229,6 @@ class EarthquakeScraperService
         $users = User::whereNotNull('phone_number')->get();
         
         if ($users->isEmpty()) {
-            Log::info('No users to notify for earthquake', [
-                'magnitude' => $magnitude,
-                'region' => $region
-            ]);
             return;
         }
         
@@ -255,13 +244,6 @@ class EarthquakeScraperService
                 $notificationCount++;
             }
         }
-        
-        Log::info('Earthquake notifications sent', [
-            'magnitude' => $magnitude,
-            'region' => $region,
-            'successful_notifications' => $notificationCount,
-            'total_recipients' => $users->count()
-        ]);
     }
 
     /**
